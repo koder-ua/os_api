@@ -106,3 +106,16 @@ except NovaError as exc:
 print vm_future_2.result()
 
 ```
+
+### List of background api
+
+	* server create/delete
+	* volume create/delete
+	* volume attach/detach
+	* vm image create
+	* vm backup
+	* vm migrate
+
+### TODO
+
+	* server might be deleted duting creation
