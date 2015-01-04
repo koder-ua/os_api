@@ -1,6 +1,6 @@
 ## concurrent.futures based api for some novaclient functions (POC)
 
-    The goal for this package is to provide a POC for convenient API for
+The goal for this package is to provide a POC for convenient API for
 openstack api function's, which done actual work in background after
 returning preliminary result. Such as - create server, delete server,
 create volume, etc. This action may fails in background or hangs, 
@@ -8,6 +8,7 @@ and novaclient library provides no common way to handle such problems.
 
 Common pattern to create vm looks like this:
 
+```python
 for i in range(try_count):
     vm = novaclient.servers.create(...)
 
@@ -23,6 +24,7 @@ for i in range(try_count):
     novaclient.servers.delete(vm)
     # here might be a same check cycle for delete,
     # as delete also happened in background
+```
 
 API provides no way to automate retry, waiting for results, etc.
 Common way to deal with such problems is futures
