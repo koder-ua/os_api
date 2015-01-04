@@ -13,22 +13,26 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+import os
 
-config = {
-    'description': 'concurrent.future based openstack api',
-    'author': 'kdanilov aka koder',
-    'url': 'https://github.com/koder-ua/os_api',
-    # 'download_url': 'Where to download it.',
-    'author_email': 'kdanilov@mirantis.com',
-    'version': '0.1',
-    'install_requires': ['futures'],
-    'packages': ['os_api'],
-    'scripts': [],
-    'name': 'os_api'
-}
+from novaclient.client import Client as n_client
 
-setup(**config)
+from nova import update_nova_with_async
+
+
+def ostack_get_creds():
+    env = os.environ.get
+    name = env('OS_USERNAME')
+    passwd = env('OS_PASSWORD')
+    tenant = env('OS_TENANT_NAME')
+    auth_url = env('OS_AUTH_URL')
+
+    if name is None:
+        raise RuntimeError("You should setup "
+                           "openstack ENV variables first")
+
+    return name, passwd, tenant, auth_url
+
+
+def nova_client():
+    return update_nova_with_async(n_client('1.1', *ostack_get_creds()))
