@@ -1,28 +1,30 @@
-## concurrent.futures based api for some novaclient fucctions (POC)
+## concurrent.futures based api for some novaclient functions (POC)
 
-	The goal fo this package is to provide a POC for convinient API for
-openstack api fucntions, which done actuall work in background after
+The goal for this package is to provide a POC for convenient API for
+openstack api function's, which done actual work in background after
 returning preliminary result. Such as - create server, delete server,
 create volume, etc. This action may fails in background or hangs, 
-and novaclient library provides no common way to hadle such problems.
+and novaclient library provides no common way to handle such problems.
 
 Common pattern to create vm looks like this:
 
+```python
 for i in range(try_count):
-	vm = novaclient.servers.create(...)
+    vm = novaclient.servers.create(...)
 
-	for i in range(counter):
-		time.sleep(SOME_SMALL_TIMEOUT)
-		vm = novaclient.servers.get(vm)
-		if vm.state in ('active', 'error'):
-			break
+    for i in range(counter):
+        time.sleep(SOME_SMALL_TIMEOUT)
+        vm = novaclient.servers.get(vm)
+        if vm.state in ('active', 'error'):
+            break
 
-	if vm.state == 'active':
-		break
+    if vm.state == 'active':
+        break
 
-	novaclient.servers.delete(vm)
-	# here migth be a same check cycle for delete,
-	# as delete also happend in background
+    novaclient.servers.delete(vm)
+    # here might be a same check cycle for delete,
+    # as delete also happened in background
+```
 
 API provides no way to automate retry, waiting for results, etc.
 Common way to deal with such problems is futures
@@ -30,8 +32,8 @@ Common way to deal with such problems is futures
 https://pypi.python.org/pypi/futures, 
 https://docs.python.org/3/library/concurrent.futures.html).
 
-Python 2.X don't have futures in standard library, but backport module
-availabe (https://pypi.python.org/pypi/futures).
+Python 2.X don't have futures in standard library, but back port module
+available (https://pypi.python.org/pypi/futures).
 
 The idea is to add to novaclient module functions, which returns future
 for all background operations provides a common way for
@@ -39,9 +41,9 @@ for all background operations provides a common way for
  * check whenever action complete at the moment
  * waiting for action to complete
  * set complete timeout
- * retrying in case of backgroud failures
+ * retrying in case of background failures
 
-Only create and delete fucntions are implemented at the moment.
+Only create and delete functions are implemented at the moment.
 
 ### Usage examples
 
@@ -56,7 +58,7 @@ Create with retry and check periodically
 future = nova.servers.create_async('koder-async', flavor=fl, image=img, retry_count=3)
 # do some work
 if future.ready():
-	...
+    ...
 # do some work
 server = future.result()
 ```
@@ -67,7 +69,7 @@ Full example
 
 from os_api.nova import nova_client, NovaError, Timeout
 
-# takes paramenters from os.env
+# takes parameters from os.env
 nova = nova_client()
 
 fl = nova.flavors.find(ram=512)
@@ -80,14 +82,14 @@ vm_future = nova.servers.create_async('koder-async', flavor=fl, image=img)
 print vm_future.sync_result
 
 # Request for new vm. Will retry 2 times in case if vm fails to start
-# vm_future_2 future has no sync_result field, as vm migth be
+# vm_future_2 future has no sync_result field, as vm might be
 # deleted and created up to retry_count times
 vm_future_2 = nova.servers.create_async_r2('koder-async', flavor=fl, image=img,
                                            retry_count=2)
 
 # DO_SOME_WORK_HERE
 
-# block untill vm will became 'active'
+# block until vm will became 'active'
 # will raise an exception in case of creation fails
 # or takes to long
 try:
