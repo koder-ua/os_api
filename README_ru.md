@@ -177,4 +177,7 @@ res = client.create_object_async_r(try_count=TRY_COUNT, tout=TIMEOUT2).result()
     ```
     В futures соответствующая функциональность не реализована и не
     рассматривается в этом документе.
+
+  * Модуль зависит от concurrent.future, но из этого модуля нужен только 
+    Future класс, который легко можно реализовать отдельно.
  
