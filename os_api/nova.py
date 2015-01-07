@@ -20,9 +20,9 @@ import logging
 import functools
 import traceback
 import threading
+import contextlib
 
 from concurrent.futures import Future
-
 
 from novaclient.v1_1.servers import ServerManager
 
