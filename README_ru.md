@@ -3,6 +3,31 @@
 ### API для фоновых операций в openstack, основанное на Futures.
 -----------------------------------------------------------------
 
+#### Abstract
+-------------
+
+There a set of openstack api functions which starts background actions
+and return preliminary results - like 'novaclient.create'. Those functions 
+requres periodically check results and handle timeouts/errors 
+(oftenly cleanup + restart helps to fix an error). 
+Check/Retry/cleanup code duplicated over a lot of core projects.
+As examples - heat, tempest, rally, etc and definitelly in many third-party.
+
+I propose to provide common higth-level API for such functions, which uses
+'futures' (http://en.wikipedia.org/wiki/Futures_and_promises) as a way to 
+present background task. 
+
+Idea is to add to each background-task-starter function a complimentary call, 
+that returns 'future' object. E.g.
+
+    create_future = novaclient.servers.create_async(....)
+    .....
+    vm = create_future.result()
+
+This allows to unify(and optimize) monitoring cycles, retries, etc.
+Please found complete BP at 
+https://github.com/koder-ua/os_api/blob/master/README.md
+
 #### Введение и обоснование
 -------------------------
 
@@ -33,8 +58,7 @@ Novaclient не представляет удобных унифицирован
 довольно часто встречается код выполняющий ожидания завершения
 фоновой операции, и очистку и перезапуск в случае ошибки или таймаута:
 
-``(TODO: я точно знаю про tempest, heat, cfn-tools, нужно найти ссылки на код)``
-
+``(TODO: я точно знаю про tempest, heat, cfn-tools, rally. нужно найти ссылки на код)``
 
 ```python
 for i in range(TRY_COUNT):
