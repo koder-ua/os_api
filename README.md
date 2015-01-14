@@ -7,8 +7,9 @@
 There a set of openstack api functions which starts background actions
 and return preliminary results - like 'novaclient.create'. Those functions
 requires periodically check results and handle timeouts/errors
-(often cleanup + restart helps to fix an error).
-Check/Retry/cleanup code duplicated over a lot of core projects.
+(and often cleanup + restart helps to fix an error).
+
+Check/retry/cleanup code duplicated over a lot of core projects.
 As examples - heat, tempest, rally, etc and definitely in many third-party.
 
 I propose to provide common higth-level API for such functions, which uses

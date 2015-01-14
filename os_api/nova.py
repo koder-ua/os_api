@@ -20,7 +20,6 @@ import logging
 import functools
 import traceback
 import threading
-import contextlib
 
 from concurrent.futures import Future
 
